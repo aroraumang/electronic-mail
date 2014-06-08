@@ -1,5 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of
-#this repository contains the full copyright notices and license terms.
+# This file is part of Tryton.  The COPYRIGHT file at the top level of
+# this repository contains the full copyright notices and license terms.
 "Electronic Mail"
 
 import os
@@ -20,8 +20,10 @@ from trytond.transaction import Transaction
 from trytond.pool import Pool, PoolMeta
 
 
-__all__ = ['Mailbox', 'MailboxParent', 'ReadUser', 'WriteUser', 
-                'ElectronicMail', 'Header']
+__all__ = [
+    'Mailbox', 'MailboxParent', 'ReadUser', 'WriteUser',
+    'ElectronicMail', 'Header'
+]
 
 __metaclass__ = PoolMeta
 
@@ -33,43 +35,58 @@ class Mailbox(ModelSQL, ModelView):
     name = fields.Char('Name', required=True)
     user = fields.Many2One('res.user', 'Owner')
     parents = fields.Many2Many(
-             'electronic_mail.mailbox-mailbox',
-             'parent', 'child' ,'Parents')
+        'electronic_mail.mailbox-mailbox',
+        'parent', 'child', 'Parents'
+    )
     subscribed = fields.Boolean('Subscribed')
-    read_users = fields.Many2Many('electronic_mail.mailbox-read-res.user',
-            'mailbox', 'user', 'Read Users')
-    write_users = fields.Many2Many('electronic_mail.mailbox-write-res.user',
-            'mailbox', 'user', 'Write Users')
+    read_users = fields.Many2Many(
+        'electronic_mail.mailbox-read-res.user',
+        'mailbox', 'user', 'Read Users'
+    )
+    write_users = fields.Many2Many(
+        'electronic_mail.mailbox-write-res.user',
+        'mailbox', 'user', 'Write Users'
+    )
 
 
 class MailboxParent(ModelSQL):
     'Mailbox - parent - Mailbox'
     __name__ = 'electronic_mail.mailbox-mailbox'
 
-    parent = fields.Many2One('electronic_mail.mailbox', 'Parent',
-            ondelete='CASCADE', required=True, select=1)
-    child = fields.Many2One('electronic_mail.mailbox', 'Child',
-            ondelete='CASCADE', required=True, select=1)
+    parent = fields.Many2One(
+        'electronic_mail.mailbox', 'Parent',
+        ondelete='CASCADE', required=True, select=1
+    )
+    child = fields.Many2One(
+        'electronic_mail.mailbox', 'Child',
+        ondelete='CASCADE', required=True, select=1
+    )
 
 
 class ReadUser(ModelSQL):
     'Electronic Mail - read - User'
     __name__ = 'electronic_mail.mailbox-read-res.user'
 
-    mailbox = fields.Many2One('electronic_mail.mailbox', 'Mailbox',
-            ondelete='CASCADE', required=True, select=1)
-    user = fields.Many2One('res.user', 'User', ondelete='CASCADE',
-            required=True, select=1)
+    mailbox = fields.Many2One(
+        'electronic_mail.mailbox', 'Mailbox',
+        ondelete='CASCADE', required=True, select=1
+    )
+    user = fields.Many2One(
+        'res.user', 'User', ondelete='CASCADE', required=True, select=1
+    )
 
 
 class WriteUser(ModelSQL):
     'Mailbox - write - User'
     __name__ = 'electronic_mail.mailbox-write-res.user'
 
-    mailbox = fields.Many2One('electronic_mail.mailbox', 'mailbox',
-            ondelete='CASCADE', required=True, select=1)
-    user = fields.Many2One('res.user', 'User', ondelete='CASCADE',
-            required=True, select=1)
+    mailbox = fields.Many2One(
+        'electronic_mail.mailbox', 'mailbox',
+        ondelete='CASCADE', required=True, select=1
+    )
+    user = fields.Many2One(
+        'res.user', 'User', ondelete='CASCADE', required=True, select=1
+    )
 
 
 class ElectronicMail(ModelSQL, ModelView):
@@ -163,11 +180,11 @@ class ElectronicMail(ModelSQL, ModelView):
             if self.collision:
                 filename = filename + '-' + str(self.collision)
             filename = os.path.join(
-                CONFIG['data_path'], db_name, 
+                CONFIG['data_path'], db_name,
                 'email', filename[0:2], filename)
             try:
                 with open(filename, 'r') as file_p:
-                    value =  file_p.read()
+                    value = file_p.read()
             except IOError:
                 pass
         return value
@@ -176,11 +193,11 @@ class ElectronicMail(ModelSQL, ModelView):
     def get_email(cls, mails, name):
         """Fetches email from the data_path as email object
         """
-        result = { }
+        result = {}
         for mail in mails:
             result[mail.id] = base64.encodestring(
                 mail._get_email()
-                ) or False
+            ) or False
         return result
 
     @classmethod
@@ -210,7 +227,7 @@ class ElectronicMail(ModelSQL, ModelView):
                 file_p.write(data)
         else:
             # File already exists, may be its the same email data
-            # or maybe different. 
+            # or maybe different.
 
             # Case 1: If different: we have to write file with updated
             # Collission index
@@ -280,7 +297,7 @@ class ElectronicMail(ModelSQL, ModelView):
             'in_reply_to': mail.get('in-reply-to'),
             'email': mail.as_string(),
             'size': getsizeof(mail.as_string()),
-            }
+        }
         mail_created = cls.create([values])[0]
         Header.create_from_email(mail, mail_created.id)
         return mail_created
@@ -303,9 +320,8 @@ class Header(ModelSQL, ModelView):
         values = []
         for name, value in mail.items():
             values.append({
-                'electronic_mail':mail_id,
-                'name':name,
-                'value':value,
+                'electronic_mail': mail_id,
+                'name': name,
+                'value': value,
             })
         return cls.create(values)
-

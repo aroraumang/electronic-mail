@@ -4,9 +4,11 @@
 # this repository contains the full copyright notices and license terms.
 "Electronic Mail test suite"
 
-import sys, os
-DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
-    '..', '..', '..', '..', '..', 'trytond')))
+import sys
+import os
+DIR = os.path.abspath(os.path.normpath(os.path.join(
+    __file__, '..', '..', '..', '..', '..', 'trytond'
+)))
 if os.path.isdir(DIR):
     sys.path.insert(0, os.path.dirname(DIR))
 import unittest
@@ -40,24 +42,23 @@ class ElectronicMailTestCase(unittest.TestCase):
         self.Header = POOL.get('electronic_mail.header')
         self.User = POOL.get('res.user')
         self.Groups = POOL.get('res.group')
-        self.ModelData= POOL.get('ir.model.data')
+        self.ModelData = POOL.get('ir.model.data')
 
     def create_user(self, name):
         """
         Creates a new user and returns the ID
         """
-        group_email_admin_id =  self.ModelData.get_id(
+        group_email_admin_id = self.ModelData.get_id(
             'electronic_mail', 'group_email_admin')
-        group_email_user_id =  self.ModelData.get_id(
+        group_email_user_id = self.ModelData.get_id(
             'electronic_mail', 'group_email_user')
 
-        return self.User.create(
-            [{
+        return self.User.create([{
             'login': name,
             'name': name,
             'password': name,
             'groups': [('set', [group_email_admin_id, group_email_user_id])]
-            }])
+        }])
 
     def create_users(self, no_of_sets=1):
         """
@@ -67,12 +68,12 @@ class ElectronicMailTestCase(unittest.TestCase):
             1 Write User
         :return: List of tuple of the ID of three users
         """
-        created_users = [ ]
+        created_users = []
         for iteration in xrange(1, no_of_sets + 1):
             created_users.append(
                 tuple([
-                    self.create_user(user_type % iteration)[0].id \
-                        for user_type in USER_TYPES
+                    self.create_user(
+                        user_type % iteration)[0].id for user_type in USER_TYPES
                 ])
             )
         return created_users
@@ -94,22 +95,20 @@ class ElectronicMailTestCase(unittest.TestCase):
             # Create Users for testing access
             user_set_1, user_set_2 = self.create_users(no_of_sets=2)
             # Create a mailbox with a user set
-            self.Mailbox.create(
-                [{
-                    'name': 'Parent Mailbox',
-                    'user': user_set_1[0],
-                    'read_users': [('set', [user_set_1[1]])],
-                    'write_users': [('set', [user_set_1[2]])],
-                    }])
+            self.Mailbox.create([{
+                'name': 'Parent Mailbox',
+                'user': user_set_1[0],
+                'read_users': [('set', [user_set_1[1]])],
+                'write_users': [('set', [user_set_1[2]])],
+            }])
 
             # Create a mailbox 2 with RW users of set 1 + set 2
-            self.Mailbox.create(
-                [{
-                    'name': 'Child Mailbox',
-                    'user': user_set_2[0],
-                    'read_users': [('set', [user_set_1[1], user_set_2[1]])],
-                    'write_users': [('set', [user_set_1[2], user_set_2[2]])],
-                    }])
+            self.Mailbox.create([{
+                'name': 'Child Mailbox',
+                'user': user_set_2[0],
+                'read_users': [('set', [user_set_1[1], user_set_2[1]])],
+                'write_users': [('set', [user_set_1[2], user_set_2[2]])],
+            }])
 
             # Directly test the mailboxes each user has access to
             expected_results = {
@@ -117,7 +116,7 @@ class ElectronicMailTestCase(unittest.TestCase):
                 user_set_1[1]: 2, user_set_2[1]: 1,
                 user_set_1[2]: 2, user_set_2[2]: 1,
                 USER: 2
-                }
+            }
             for user_id, mailbox_count in expected_results.items():
                 with Transaction().set_user(user_id):
                     self.assertEqual(
@@ -141,13 +140,12 @@ class ElectronicMailTestCase(unittest.TestCase):
         """
         with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
             user_o, user_r, user_w = self.create_users(no_of_sets=1)[0]
-            mailbox, = self.Mailbox.create(
-                [{
-                    'name': 'Mailbox',
-                    'user': user_o,
-                    'read_users': [('set', [user_r])],
-                    'write_users': [('set', [user_w])],
-                    }])
+            mailbox, = self.Mailbox.create([{
+                'name': 'Mailbox',
+                'user': user_o,
+                'read_users': [('set', [user_r])],
+                'write_users': [('set', [user_w])],
+            }])
 
             # Raise exception when writing a mail with the read user
             with Transaction().set_user(user_r):
@@ -156,7 +154,8 @@ class ElectronicMailTestCase(unittest.TestCase):
                     ([{
                         'from_': 'Test',
                         'mailbox': mailbox
-                        }],))
+                    }],)
+                )
 
             # Creating mail with the write user
             with Transaction().set_user(user_w):
@@ -205,13 +204,12 @@ class ElectronicMailTestCase(unittest.TestCase):
         message.attach(part2)
 
         with Transaction().start(DB_NAME, USER, CONTEXT):
-            mailbox, = self.Mailbox.create(
-                [{
-                    'name': 'Mailbox',
-                    'user': USER,
-                    'read_users': [('set', [USER])],
-                    'write_users': [('set', [USER])],
-                    }])
+            mailbox, = self.Mailbox.create([{
+                'name': 'Mailbox',
+                'user': USER,
+                'read_users': [('set', [USER])],
+                'write_users': [('set', [USER])],
+            }])
             mail = self.Mail.create_from_email(message, mailbox)
 
             self.assertEqual(mail.subject, message['Subject'])
@@ -224,8 +222,7 @@ def suite():
     suite = trytond.tests.test_tryton.suite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(
         ElectronicMailTestCase
-        )
-    )
+    ))
     return suite
 
 if __name__ == '__main__':

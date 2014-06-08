@@ -4,7 +4,7 @@
 "Electronic Mail"
 
 from electronic_mail import ElectronicMail, Mailbox, MailboxParent, \
-        ReadUser, WriteUser, Header
+    ReadUser, WriteUser, Header
 
 from trytond.pool import Pool
 

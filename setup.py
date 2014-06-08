@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-#This file is part of Tryton.  The COPYRIGHT file at the top level of
-#this repository contains the full copyright notices and license terms.
+# This file is part of Tryton.  The COPYRIGHT file at the top level of
+# this repository contains the full copyright notices and license terms.
 
 from setuptools import setup
 import re
@@ -20,28 +20,31 @@ minor_version = int(minor_version)
 requires = []
 for dep in info.get('depends', []):
     if not re.match(r'(ir|res|workflow|webdav)(\W|$)', dep):
-        requires.append('trytond_%s >= %s.%s, < %s.%s' %
-                (dep, major_version, minor_version, major_version,
-                    minor_version + 1))
-requires.append('trytond >= %s.%s, < %s.%s' %
-        (major_version, minor_version, major_version, minor_version + 1))
+        requires.append('trytond_%s >= %s.%s, < %s.%s' % (
+            dep, major_version, minor_version, major_version, minor_version + 1
+        ))
+requires.append('trytond >= %s.%s, < %s.%s' % (
+    major_version, minor_version, major_version, minor_version + 1
+))
 
-setup(name='trytond_electronic_mail',
+setup(
+    name='trytond_electronic_mail',
     version=info.get('version', '0.0.1'),
     description=info.get('description', ''),
     author=info.get('author', ''),
     author_email=info.get('email', ''),
     url=info.get('website', ''),
-    download_url="http://downloads.tryton.org/" + \
-            info.get('version', '0.0.1').rsplit('.', 1)[0] + '/',
+    download_url="http://downloads.tryton.org/" + info.get(
+        'version', '0.0.1').rsplit('.', 1)[0] + '/',
     package_dir={'trytond.modules.electronic_mail': '.'},
     packages=[
         'trytond.modules.electronic_mail',
         'trytond.modules.electronic_mail.tests',
     ],
     package_data={
-        'trytond.modules.electronic_mail': info.get('xml', []) \
-                + ['tryton.cfg'] + info.get('translation', []),
+        'trytond.modules.electronic_mail': info.get('xml', []) + [
+            'tryton.cfg'
+        ] + info.get('translation', []),
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
